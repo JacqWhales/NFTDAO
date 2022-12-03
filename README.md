@@ -1,4 +1,3 @@
-# NFTDAO
 
 This code defines two Solidity contracts, NFT and DAO.
 
