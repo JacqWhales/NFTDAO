@@ -41,45 +41,67 @@ contract DAO {
   // The constant that is used to calculate the waiting period
   uint256 public waitingPeriodConstant;
 
+  // The mapping that stores the allowed contract addresses for NFTs
+  mapping(string => address) public allowedContracts;
+
   // The event that is emitted when a vote is cast
   event VoteCast(address indexed _from, string _proposal);
 
   // The function to cast a vote for a proposal
   function vote(string _proposal) public {
-    // Check if the caller is an NFT holder
-    require(balanceOf[msg.sender] > 0, "Only NFT holders can vote");
+  // Check if the caller is an NFT holder
+  require(balanceOf[msg.sender] > 0, "Only NFT holders can vote");
+// Calculate the waiting period based on the current issuance rate
+uint256 waitingPeriod = nftContract.issuanceRate * waitingPeriodConstant;
 
-    // Calculate the waiting period based on the current issuance rate
-    uint256 waitingPeriod = nftContract.issuanceRate * waitingPeriodConstant;
+// Check if the waiting period has elapsed for the caller's NFT
+require(block.timestamp >= mintTimestamp[msg.sender] + waitingPeriod, "Waiting period has not elapsed");
 
-    // Check if the waiting period has elapsed for the caller's NFT
-    require(block.timestamp >= mintTimestamp[msg.sender] + waitingPeriod, "Waiting period has not elapsed");
+// Increment the number of votes for the given proposal
+votes[_proposal]++;
 
-    // Increment the number of votes for the given proposal
-    votes[_proposal]++;
+// Emit the VoteCast event
+emit VoteCast(msg.sender, _proposal);
 
-    // Emit the VoteCast event
-    emit VoteCast(msg.sender, _proposal);
-  }
+}
 
-  // The function to execute the proposal with the most votes
-  function executeProposal() public {
-    // Check if there is a proposal with the most votes
-    if (proposal == "") return;
+// The function to execute the proposal with the most votes
+function executeProposal() public {
+// Check if there is a proposal with the most votes
+if (proposal == "") return;
+// Check if the proposal with the most votes has the majority of the votes
+if (votes[proposal] <= totalSupply / 2) return;
 
-    // Check if the proposal with the most votes has the majority of the votes
-    if (votes[proposal] <= totalSupply / 2) return;
+// Execute the proposal with the most votes
+if (proposal == "issuancePrice") {
+  // Set the issuance price of the NFT
+  // ...
+} else if (proposal == "issuanceRate") {
+  // Set the issuance rate of the NFT
+  // ...
+}
 
-    // Execute the proposal with the most votes
-    if (proposal == "issuancePrice") {
-      // Set the issuance price of the NFT
-      // ...
-    } else if (proposal == "issuanceRate") {
-      // Set the issuance rate of the NFT
-      // ...
-    }
+// Reset the proposal with the most votes
+proposal = "";
 
-    // Reset the proposal with the most votes
-    proposal = "";
-  }
+}
+
+// The function to add an allowed contract for NFTs
+function addAllowedContract(string _name, address _contract) public {
+// Check if there is a proposal with the most votes
+require(proposal != "", "No proposal with the most votes exists");
+
+// Check if the proposal with the most votes has the majority of the votes
+require(votes[proposal] > totalSupply / 2, "Proposal does not have the majority of the votes");
+
+// Add the allowed contract to the mapping
+allowedContracts[_name] = _contract;
+
+}
+
+// The function to check if an NFT is allowed to interact with a given contract
+function isAllowed(address _nft, address _contract) public view returns (bool) {
+// Check if the given contract is in the allowed contracts mapping
+return allowedContracts[_contract] == _contract;
+}
 }
