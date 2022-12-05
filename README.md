@@ -1,22 +1,35 @@
+MyNFT
+The MyNFT contract is a non-fungible token (NFT) contract that extends the ERC721 contract from the OpenZeppelin library. It allows for the minting and management of unique, collectible tokens.
 
+Properties
+mintingRate: The maximum number of tokens that can be minted in a single block.
+lastMintedBlock: The block number of the last time a token was minted.
+mintsInCurrentBlock: The number of tokens minted in the current block.
+nftPrice: The price of each token in wei.
+members: A mapping of addresses to booleans representing whether or not they are members of the DAO.
+Functions
+mint
+Mints a new token and assigns it to the specified address.
 
-This code defines two Solidity contracts, `NFT` and `DAO`.
+Parameters
+_to: The address to assign the token to.
+_tokenId: The unique ID of the token to mint.
+mintNFT
+Mints a new token and assigns it to the caller, provided that they have sent the required payment to the contract. Also enforces the minting rate and block restrictions.
 
-The `NFT` contract is a non-fungible token (NFT) contract that defines two publicly readable variables, `issuancePrice` and `issuanceRate`, which represent the issuance price and rate of the NFT, respectively. The contract also defines a function called `mint` that can be used to mint new copies of the NFT at the specified price and rate.
+Parameters
+_tokenId: The unique ID of the token to mint.
+Modifiers
+payable: The function accepts ether payments.
+addMember
+Adds the specified address to the list of members of the DAO.
 
-The `DAO` contract is a decentralized autonomous organization (DAO) contract that is used to govern the `NFT` contract. It defines a publicly readable variable called `nftContract` that stores the address of the `NFT` contract that it governs. The `DAO` contract also defines several other publicly readable variables, including:
+Parameters
+_member: The address to add as a member.
+updateMintingRate
+Updates the minting rate of the contract. Can only be called by members of the DAO, and requires a majority vote of the members in favor of the change.
 
-*   `votes`: a mapping that stores the total number of votes for each parameter.
-*   `proposal`: a string that stores the proposal with the most votes.
-*   `totalSupply`: the total number of NFTs.
-*   `balanceOf`: a mapping that stores the NFT balance of each address.
-*   `mintTimestamp`: a mapping that stores the timestamp or block number when each NFT was minted.
-*   `waitingPeriodConstant`: a constant that is used to calculate the waiting period for voting.
-
-The `DAO` contract also defines several functions, including:
-
-*   `vote`: allows an NFT holder to cast a vote for a given proposal. The function first checks that the caller is an NFT holder, and then checks if the waiting period has elapsed for the caller's NFT. If these conditions are satisfied, the function increments the number of votes for the given proposal and emits the `VoteCast` event.
-*   `executeProposal`: executes the proposal with the most votes. The function first checks that there is a proposal with the most votes, and then checks if the proposal has the majority of the votes. If these conditions are satisfied, the function executes the proposal by calling the appropriate function in the `NFT` contract (either `setIssuancePrice` or `setIssuanceRate`).
-*   `VoteCast`: an event that is emitted whenever a vote is cast. This event includes the address of the voter and the proposal that was voted for.
-
-Together, these functions and variables allow the `DAO` contract to govern the `NFT` contract by allowing NFT holders to vote on proposals and execute the proposal with the most votes.
+Parameters
+_newRate: The new minting rate to set.
+Modifiers
+onlyMembers: The function can only be called by members of the DAO.
